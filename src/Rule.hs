@@ -10,6 +10,19 @@ not :: Rule (Expr a)
 not = (Not, Not)
 
 
+associativity :: Rule (Expr a)
+associativity =
+    let 
+        f = \case
+            (Or p (Or q r)) -> (Or (Or p q) r)
+            s               -> s
+        g = \case
+            (Or (Or p q) r) -> (Or p (Or q r))
+            s               -> s
+    in
+        (f, g)
+
+
 -- stbs f = (Eq x y -> Eq (f x) (f y), Eq (f x) (f y) -> Eq (f x) (f y)
 stbs :: (Expr a -> Expr a) -> Rule (Expr a)
 stbs f =
@@ -126,3 +139,28 @@ axiom7 =
             s -> s
     in
         (f, g)
+
+
+
+-- Laws of logical deduction
+
+doubleNegation :: Rule (Expr a)
+doubleNegation =
+    let
+        f = \case
+            (Not (Not x)) -> x
+            r             -> r
+    in
+        (Not . Not, f)
+
+
+excludedMiddle :: Eq a => Rule (Expr a)
+excludedMiddle =
+    let
+        f = \case
+            p@(Or x (Not z))
+                | x == z -> Taut
+                | otherwise -> p
+            r -> r
+    in
+        (f, id)
