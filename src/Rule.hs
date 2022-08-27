@@ -3,7 +3,7 @@ module Rule where
 
 import Statement
 
-type Rule a = (Stmt a -> Stmt a, Stmt a -> Stmt a)
+type Rule a = (Stmt a -> Stmt a, Stmt a -> Stmt a, String)
 
 
 not :: Rule (Expr a)
@@ -164,3 +164,5 @@ excludedMiddle =
             r -> r
     in
         (f, id)
+
+rulesBase = []

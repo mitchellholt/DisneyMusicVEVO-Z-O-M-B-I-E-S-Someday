@@ -1,3 +1,5 @@
+module Verify where
+
 import Statement
 import Proof
 import Rule

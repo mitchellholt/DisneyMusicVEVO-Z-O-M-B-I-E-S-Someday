@@ -2,6 +2,8 @@
 module Main where
 
 import qualified ParseLib (parse, token)
+import ParseProof
+import Verify
 import System.IO
 import GHC.IO.Handle (hIsEOF)
 
@@ -20,6 +22,6 @@ main = do
     fHandle <- openFile "test1.jk" ReadMode
     contents <- readWholeFile fHandle
     hClose fHandle
-    case ParseLib.parse (ParseLib.token "thm.") contents of
-      Just (str, rest) -> putStrLn str
-      Nothing       -> putStrLn "err"
+    case ParseLib.parse (proof) contents of
+      Just (a, rest) -> putStrLn $ (show a) ++ "\n" ++ (show $ verify a)
+      Nothing       -> putStrLn "err :("

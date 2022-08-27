@@ -1,8 +1,14 @@
 module Statement where
 
 data Expr a = Zero | Var a | Succ (Expr a) | Prod (Expr a) (Expr a)
-    | Sum (Expr a) (Expr a) deriving (Eq, Show)
+    | Sum (Expr a) (Expr a) deriving (Eq)
 
+instance Show (Expr String) where
+    show Zero = "0"
+    show (Var a) = a
+    show (Succ a) = "s(" ++ (show a) ++ ")"
+    show (Prod a b) = (show a) ++ "*" ++ (show b)
+    show (Sum a b) = (show a) ++ "+" ++ (show b)
 
 instance Monad Expr where
     -- (>>=) :: Expr a -> (a -> Expr b) -> Expr b
@@ -38,8 +44,15 @@ instance Functor Expr where
 -- Type used on statement should be epression
 -- REQUIRE Exists a is (Var x)
 data Stmt a =  Taut | Eq a a | Or (Stmt a) (Stmt a) | Not (Stmt a)
-            | Exists a (Stmt a) | Forall a (Stmt a) deriving (Eq, Show)
+            | Exists a (Stmt a) | Forall a (Stmt a) deriving (Eq)
 
+instance Show a => Show (Stmt a) where
+    show Taut = "Taut"
+    show (Eq a b) = (show a) ++ " = " ++ (show b)
+    show (Or a b) = (show a) ++ " or " ++ (show b)
+    show (Not a) = "~(" ++ (show a) ++ ")"
+    show (Exists a b) = "E " ++ (show a) ++ " : " ++ (show b)
+    show (Forall a b) = "A " ++ (show a) ++ " : " ++ (show b)
 
 instance Functor Stmt where
     -- fmap :: (a -> b) -> Stmt a -> Stmt b
