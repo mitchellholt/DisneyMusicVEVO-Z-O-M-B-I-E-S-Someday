@@ -24,7 +24,7 @@ extra-source-files:
     README.md
 
 library
-    exposed-modules:  MyLib
+    exposed-modules:  Proof
 
     -- Modules included in this library but not exported.
     -- other-modules:
