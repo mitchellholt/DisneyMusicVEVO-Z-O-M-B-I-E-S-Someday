@@ -15,5 +15,5 @@ newrule = do
     q <- statement
     _ <- token ","
     name <- word
-    let f = \x -> if show x == show p then q else x
+    let f = \x -> if x == p then q else x
     return (f, id, name)
