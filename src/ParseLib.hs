@@ -49,7 +49,7 @@ parseOne = P $ \case
 
 parseWhile :: (Char -> Bool) -> Parser String
 parseWhile p = P $ \case
-    [] -> Nothing
+    [] -> Just ("", "")
     (c:cs)
         | p c -> case parse (parseWhile p) cs of
             Nothing           -> Just ([c], "")
@@ -92,3 +92,11 @@ token str = do
 
 isInteger :: String -> Bool
 isInteger = all (`elem` "0123456789")
+
+
+word :: Parser String
+word = do
+    _ <- whitespace
+    str <- parseWhile (`elem` ['a'..'z'])
+    if str == "" then empty
+    else do return str
