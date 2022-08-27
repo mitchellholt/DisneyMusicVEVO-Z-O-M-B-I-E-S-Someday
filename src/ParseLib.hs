@@ -58,8 +58,8 @@ parseWhile p = P $ \case
 
 
 
-spaces :: Parser ()
-spaces = do
+whitespace :: Parser ()
+whitespace = do
     _ <- parseWhile (`elem` [' ', '\t', '\n'])
     return ()
 
@@ -84,9 +84,9 @@ parseMany (c:cs) = do
 
 token :: String -> Parser String
 token str = do
-    _ <- spaces
+    _ <- whitespace
     tok <- parseMany str
-    _ <- spaces
+    _ <- whitespace
     return tok
 
 
