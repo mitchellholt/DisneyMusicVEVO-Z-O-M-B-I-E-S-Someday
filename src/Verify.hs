@@ -24,8 +24,7 @@ split (Forall a s) = (Forall a, s)
 split x = (\y -> x, x)
 
 verifyS :: (Pf a) -> Bool
-verifyS (Truth (Taut, _)) = True
-verifyS (Truth (_, _)) = False
+verifyS (Truth _) -> True
 verifyS (Apply (s,_) r p) = ((top p) == (r s)) & (verifyS p)
 verifyS (Case (s,_) r t f n) = and $ (fmap verifyS [t, f, n]) ++ (fmap (\x -> s == (top x)) [t, f, n]) ++ [(bot t) == (top n), (bot f) == (top n)]
 verifyS (Expand (s,_) p n) = let (f, ss) = (split s) in 
