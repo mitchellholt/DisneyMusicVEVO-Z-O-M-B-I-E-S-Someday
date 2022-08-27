@@ -17,7 +17,7 @@ readWholeFile fHandle = do
 
 main :: IO ()
 main = do
-    fHandle <- openFile "test.txt" ReadMode
+    fHandle <- openFile "test1.jk" ReadMode
     contents <- readWholeFile fHandle
     hClose fHandle
     case ParseLib.parse (ParseLib.token "thm.") contents of
