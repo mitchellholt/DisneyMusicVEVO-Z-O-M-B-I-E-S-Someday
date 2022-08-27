@@ -1,34 +1,28 @@
 def. geq(x,y) E n : y + n = x
 
-thm. test1 A x, A y, !geq(x,y) or geq(s(x),s(y))
+thm. test1 [ \A x, \A y, !geq(x,y) or geq(s(x),s(y)) ]
 proof test1
-{   A y, !geq(x,y) or geq(s(x),s(y));
-    {   !geq(x,y) or geq(s(x),s(y));
-        case(Taut ~ !geq(x,y), rule) 
-        <{ !geq(x,y);
-            @proof
-                Taut
-                (rule) -> !geq(x,y)
-        }><
-            (commute) -> geq(s(x),s(y)) or !geq(x,y)
-            { geq(s(x),s(y));
-                @proof
-                    Taut
-                    (rule) -> !(!geq(x,y))
-                    (notnot) -> geq(x,y)
-                    (unwrap) -> E n : y + n = x
-                    { y + n = x;
-                        (stbs s) -> s(y + n) = s(x)
-                        [
-                            s(y + n)
-                            (split) -> s(y) + n
-                        ]
-                    }  E n : s(y) + n = s(x)
-                    (wrap geq) -> geq(s(x),s(y))
-            }
+{ @back
+    {
+        case(Taut ~ !geq(x,y), rule)
+        <                                   # geq(x,y) is false
+            {(rule) <- Taut;};
         >
-    }
-}
+        <                                  # geq(x,y) is true
+            (commute) <- geq(s(x),s(y)) or !geq(x,y)
+            {
+                (wrap geq) <- \E n : s(y) + n = s(x);
+                {
+                    (left split)    <- s(y + n) = s(x)       ;
+                    (stbs s)        <- y + n = x             ;
+                } \E n : y + n = x;
+                (wrap)      <- geq(x,y);
+                (notnot)    <- !(!geq(x,y));
+                (rule)      <- Taut;
+            };
+        >;
+    };
+};
 
 
 
