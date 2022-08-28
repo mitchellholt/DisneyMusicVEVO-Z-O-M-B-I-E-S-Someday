@@ -6,7 +6,6 @@ import ParseLib
 import ParseProof
 import Verify
 import File
-
 import System.IO
 import GHC.IO.Handle (hIsEOF)
 

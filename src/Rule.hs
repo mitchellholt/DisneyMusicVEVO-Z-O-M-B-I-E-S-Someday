@@ -57,12 +57,14 @@ axiom1 :: Rule
 axiom1 =
     let
         g = \case
-            s@(Forall (Var x) (Not (Eq Zero (Succ y))))
-                | y == Var x -> Taut
-                | otherwise -> s
+            -- s@(Forall (Var x) (Not (Eq Zero (Succ y))))
+            --     | y == Var x -> Taut
+            --     | otherwise -> s
+
+            (Forall (Var _) (Not (Eq Zero (Succ _)))) -> Taut
             r -> r
     in
-        (g, id, "axiom 1")
+        (id, g, "axiom 1")
 
 
 -- forall x, forall y, sx = sy => x = y
@@ -84,10 +86,11 @@ axiom3 :: Rule
 axiom3 = 
     let
         g = \case
-            p@(Exists x (Eq (Succ z) y))
-                | x == z    -> (Eq y Zero)
-                | otherwise -> p
-            -- TODO put converse here
+            Or (Eq y Zero) (Exists (Var x) (Eq (Succ (Var xx)) z)) -> if ((y == z) && (x == xx) ) then Taut else Or (Eq y Zero) (Exists (Var x) (Eq (Succ (Var xx)) z))
+            -- p@(Exists x (Eq (Succ z) y))
+            --     | x == z    -> (Eq y Zero)
+            --     | otherwise -> p
+            -- -- TODO put converse here
             r -> r
     in 
         (g, g, "axiom 3")
@@ -98,7 +101,7 @@ axiom4 :: Rule
 axiom4 =
     let
         g = \case
-            (Eq y (Sum x Zero)) -> Eq y x
+            (Eq (Sum x Zero) y) -> Eq x y
             r                   -> r
     in
         (g, g, "axiom 4")
@@ -112,7 +115,7 @@ axiom5 =
             (Eq z (Sum x (Succ y))) -> Eq z (Succ (Sum x y))
             r                       -> r
         g = \case
-            Eq z (Succ (Sum x y)) -> (Eq z (Sum x (Succ y))) 
+            Eq (Sum x (Succ y)) (Succ (Sum xx yy)) -> if ((y == yy) && (x == xx)) then Taut else Eq (Sum x (Succ y)) (Succ (Sum xx yy))
             s                     -> s
     in
         (f, g, "axiom 5")
@@ -126,7 +129,8 @@ axiom6 =
             (Eq z (Prod _ Zero)) -> Eq z Zero
             r                    -> r
         g = \case
-            -- TODO make the converse work, i.e. produce a forall statement
+            (Eq z (Prod _ Zero)) -> Taut
+            (Eq (Prod _ Zero) z) -> Taut
             r -> r
     in
         (f, g, "axoim 6")

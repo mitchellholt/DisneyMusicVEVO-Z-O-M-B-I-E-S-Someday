@@ -58,6 +58,7 @@ thm = do
         _ <- token "["
         p <- statement
         _ <- token "]"
+        _ <- token "PROOF."
         pf <- proof
         _ <- token "QED"
         return (J (Left (name, p, giveRules defaultRules pf)))
