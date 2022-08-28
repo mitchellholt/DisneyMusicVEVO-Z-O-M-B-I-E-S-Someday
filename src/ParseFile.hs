@@ -9,6 +9,7 @@ import ParseProof
 import Rule
 
 
+data Err a = E | J a
 type Section = Either Theorem Definition
 type Theorem = (String, Stmt (Expr String), Pf (Expr String))
 type Definition = (String, [Expr String], [Expr String], Stmt (Expr String))
@@ -18,12 +19,17 @@ language :: Parser [Section]
 language = do
     do
         sec <- section
-        -- is there a semicolon here?
-        rest <- language
-        return (sec ++ rest)
-    <|> section
+        case sec of
+            E -> return []
+            J s -> do
+                do
+                    rest <- language
+                    return (s : rest)
+                <|> return [s]
+    <|> return []
+    
 
-section :: Parser [Section]
+section :: Parser (Err Section)
 section = do
     do
         _ <- token "("
@@ -39,11 +45,10 @@ section = do
         _ <- token "["
         p <- statement
         _ <- token "]"
-        sec <- section
-        return ((Right (name, Var <$> vars, Var <$> extras, p)) : sec)
+        return (J (Right (name, Var <$> vars, Var <$> extras, p)))
     <|> thm
 
-thm :: Parser [Section]
+thm :: Parser (Err Section)
 thm = do
     do
         _ <- token "("
@@ -55,6 +60,5 @@ thm = do
         _ <- token "]"
         pf <- proof
         _ <- token "QED"
-        sec <- section
-        return ((Left (name, p, giveRules defaultRules pf)) : sec)
-    <|> return []
+        return (J (Left (name, p, giveRules defaultRules pf)))
+    <|> return E
