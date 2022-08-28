@@ -7,23 +7,65 @@ import ParseLib
 import Control.Applicative
 import ParseExpression
 import ParseStatement
+import ParseRule
 import Proof
 import Rule
 
-theorem :: Parser (Pf (Expr String))
-theorem = do
+
+-- EXPAND =  STATEMENT -> { PROOF } PROOF <-
+-- CASE = STATEMENT : Case ( RULE ) [ PROOF ] else [ PROOF ] PROOF
+-- APPLY = STATEMENT : ( RULE ) <- PROOF
+-- TRUTH = STATEMENT ;
+proof :: Parser (Pf (Expr String))
+proof = do
     do
-        _ <- token "["
-        g <- statement
-        _ <- token "]"
-        _ <- token "["
-        c <- proof
-        _ <- token "["
+        s <- statement
+        _ <- token "->"
+        _ <- token "{"
+        i <- proof
+        _ <- token "}"
+        _ <- token "<-"
         n <- proof
-        return (Expand (g, rulesBase) c n)
+        return (Expand (s, []) i n)
+    <|> casep
+
+casep :: Parser (Pf (Expr String))
+casep = do
+    do
+        s <- statement
+        _ <- token ":"
+        _ <- token "Case"
+        _ <- token "("
+        r <- newrule 
+        _ <- token ")"
+        _ <- token "["
+        t <- proof
+        _ <- token "]"
+        _ <- token "else"
+        _ <- token "["
+        f <- proof
+        _ <- token "]"
+        n <- proof
+        return (Case (s, []) r (giveRules [r] t) (giveRules [r] f) n)
+    <|> apply
+
+apply :: Parser (Pf (Expr String))
+apply = do
+    do
+        s <- statement
+        _ <- token ":"
+        _ <- token "("
+        r <- newrule
+        _ <- token ")"
+        _ <- token "<-"
+        n <- proof
+        return (Apply (s, []) (r) n) -- needs to change
     <|> truth
 
-expand :: Pa
-
-
-    -- <|> exists
+truth :: Parser (Pf (Expr String))
+truth = do
+    do
+        s <- statement
+        _ <- token ";"
+        return (Truth (s, [])) -- needs to change
+    -- <|> case

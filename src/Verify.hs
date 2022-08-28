@@ -22,7 +22,7 @@ top (Case (s,_) _ _ _ _) = s
 top (Apply (s,_) _ _) = s
 top (Truth (s,_)) = s
 
-grabRules :: (Pf a) -> [Rule a]
+grabRules :: (Pf a) -> [Rule]
 grabRules (Expand (_,r) _ _) = r
 grabRules (Case (_,r) _ _ _ _) = r
 grabRules (Apply (_,r) _ _) = r
@@ -35,48 +35,57 @@ split (Exists a s) = (Exists a, s)
 split (Forall a s) = (Forall a, s)
 split x = (\y -> x, x)
 
-verifyS :: (Eq a) => (Pf a) -> Bool
+ruleBack :: Rule -> (Stmt (Expr String) -> Stmt (Expr String))
+ruleBack (_,f,_) = f
+
+verifyS :: (Pf (Expr String)) -> Bool
 verifyS (Truth _) = True
-verifyS (Apply (s,_) r p) = (verifyS p) && ((top p) == ((snd r) s)) 
+verifyS (Apply (s,_) r p) = (verifyS p) && ((top p) == ((ruleBack r) s)) 
 verifyS (Case (s,_) r t f n) = Prelude.and $ (fmap verifyS [t, f, n]) ++ (fmap (\x -> s == (top x)) [t, f, n]) ++ [(bot t) == (top n), (bot f) == (top n)]
 verifyS (Expand (s,_) p n) = let (f, ss) = (split s) in 
     ((top p) == ss) && ((f $ bot p) == (top n)) && (verifyS n) && (verifyS p)
 
+getName :: Rule -> String
+getName (_,_,s) = s
+
 -- awful
--- subList :: [a] -> [a] -> Bool
--- subList a b = Prelude.and $ fmap (\x -> elem x b) a
+subList :: [Rule] -> [Rule] -> Bool
+subList a b = Prelude.and $ fmap (\x -> elem x (fmap getName b)) (fmap getName a)
 
-negateRule :: (Rule a) -> (Rule a)
-negateRule (a,b) = (Statement.negate . a, b . Statement.negate)
+ruleIn :: Rule -> [Rule] -> Bool
+ruleIn r l = elem (getName r) (fmap getName l)
 
-verifyR :: (Eq a) => (Pf a) -> Bool
+negateRule :: (Rule) -> (Rule)
+negateRule (a,b,s) = (Statement.negate . a, b . Statement.negate, "not" ++ s)
+
+verifyR :: (Pf (Expr String)) -> Bool
 verifyR (Truth _) = True
--- verifyR (Apply (_,rr) r p) = (elem r rr) && (subList (grabRules p) rr)
--- verifyR (Expand (_,rr) p n) = (subList (grabRules p) rr) && (subList (grabRules n) rr)
--- verifyR (Case (_,rr) r t f n) = (subList (grabRules t) (r:rr)) && (subList (grabRules f) (((negateRule) r):rr)) && (subList (grabRules f) rr)
+verifyR (Apply (_,rr) r p) = (ruleIn r rr) && (subList (grabRules p) rr)
+verifyR (Expand (_,rr) p n) = (subList (grabRules p) rr) && (subList (grabRules n) rr)
+verifyR (Case (_,rr) r t f n) = (subList (grabRules t) (r:rr)) && (subList (grabRules f) (((negateRule) r):rr)) && (subList (grabRules f) rr)
 
-verify :: (Eq a) => (Pf a) -> Bool
-verify p = (verifyS p) -- && (verifyR p)
+verify :: (Pf (Expr String)) -> Bool
+verify p = (verifyS p) && (verifyR p)
 
 -- forall x : s(0) = x
 
 
-testr (Eq (Succ Zero) (Succ Zero)) = Taut
-testr x = x
+-- testr (Eq (Succ Zero) (Succ Zero)) = Taut
+-- testr x = x
 
-testr2 (Forall x Taut) = Taut
-testr2 x = x
+-- testr2 (Forall x Taut) = Taut
+-- testr2 x = x
 
-sotrue = (Truth (Taut, []))
+-- sotrue = (Truth (Taut, []))
 
-tests = Expand ((Forall (Var 'x') testeq), []) ( 
-    testapp
- ) (Apply ((Forall (Var 'x') Taut), []) (id,testr2) sotrue)
+-- tests = Expand ((Forall (Var 'x') testeq), []) ( 
+--     testapp
+--  ) (Apply ((Forall (Var 'x') Taut), []) (id,testr2) sotrue)
 
-testeq = Eq (Succ Zero) (Succ Zero)
+-- testeq = Eq (Succ Zero) (Succ Zero)
 
-testapp = Apply (testeq, []) (id, testr) sotrue
+-- testapp = Apply (testeq, []) (id, testr) sotrue
 
-(testf, testss) = split (Forall (Var 'x') testeq)
+-- (testf, testss) = split (Forall (Var 'x') testeq)
 
 -- (Expand ((Forall (Var 'x') Taut), []) sotrue sotrue)

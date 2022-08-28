@@ -20,7 +20,7 @@ statement = do
 predicate :: Parser (Stmt (Expr String))
 predicate = do
     do
-        _ <- token "~"
+        _ <- token "!"
         p <- statement
         return (Not p)
     <|> exists

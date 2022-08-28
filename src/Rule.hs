@@ -3,14 +3,20 @@ module Rule where
 
 import Statement
 
-type Rule a = (Stmt a -> Stmt a, Stmt a -> Stmt a, String)
+type Rule = (
+    Stmt (Expr String) -> Stmt (Expr String),
+    Stmt (Expr String) -> Stmt (Expr String),
+    String
+    )
+
+-- instance Eq Rule where
+--     (_,_,s) == (_,_,t) = s == t
+
+not :: Rule
+not = (Not, Not, "not")
 
 
-not :: Rule (Expr a)
-not = (Not, Not)
-
-
-associativity :: Rule (Expr a)
+associativity :: Rule
 associativity =
     let 
         f = \case
@@ -20,11 +26,11 @@ associativity =
             (Or (Or p q) r) -> (Or p (Or q r))
             s               -> s
     in
-        (f, g)
+        (f, g, "associativity")
 
 
 -- stbs f = (Eq x y -> Eq (f x) (f y), Eq (f x) (f y) -> Eq (f x) (f y)
-stbs :: (Expr a -> Expr a) -> Rule (Expr a)
+stbs :: (Expr String -> Expr String) -> Rule
 stbs f =
     let
         g = \case
@@ -32,10 +38,10 @@ stbs f =
             r        -> r
             
     in
-        (g, id)
+        (g, id, "stbs")
 
 
-commute :: Rule (Expr a)
+commute :: Rule
 commute =
     let
         g = \case
@@ -43,11 +49,11 @@ commute =
             (Or x y) -> Or y x
             r        -> r
     in
-        (g, g)
+        (g, g, "commute")
 
 
 -- A x, ~(0 = s(x))
-axiom1 :: Eq a => Rule (Expr a)
+axiom1 :: Rule
 axiom1 =
     let
         g = \case
@@ -56,11 +62,11 @@ axiom1 =
                 | otherwise -> s
             r -> r
     in
-        (g, id)
+        (g, id, "axiom 1")
 
 
 -- forall x, forall y, sx = sy => x = y
-axiom2 :: Rule (Expr a)
+axiom2 :: Rule
 axiom2 =
     let
         f = \case
@@ -70,11 +76,11 @@ axiom2 =
             (Eq x y) -> Succ <$> Eq x y
             s        -> s
     in
-        (f, g)
+        (f, g, "axiom 2")
 
 
 -- forall y, (y = 0) or (exists x : s(x) = y)
-axiom3 :: Eq a => Rule (Expr a)
+axiom3 :: Rule
 axiom3 = 
     let
         g = \case
@@ -84,22 +90,22 @@ axiom3 =
             -- TODO put converse here
             r -> r
     in 
-        (g, g)
+        (g, g, "axiom 3")
 
 
 -- Forall x, x + 0 = x
-axiom4 :: Rule (Expr a)
+axiom4 :: Rule
 axiom4 =
     let
         g = \case
             (Eq y (Sum x Zero)) -> Eq y x
             r                   -> r
     in
-        (g, g)
+        (g, g, "axiom 4")
 
 
 -- x + s(y) = s(x + y)
-axiom5 :: Rule (Expr a)
+axiom5 :: Rule
 axiom5 =
     let
         f = \case
@@ -109,11 +115,11 @@ axiom5 =
             Eq z (Succ (Sum x y)) -> (Eq z (Sum x (Succ y))) 
             s                     -> s
     in
-        (f, g)
+        (f, g, "axiom 5")
 
 
 -- x * 0 = 0
-axiom6 :: Rule (Expr a)
+axiom6 :: Rule
 axiom6 =
     let
         f = \case
@@ -123,10 +129,10 @@ axiom6 =
             -- TODO make the converse work, i.e. produce a forall statement
             r -> r
     in
-        (f, g)
+        (f, g, "axoim 6")
 
 
-axiom7 :: Eq a => Rule (Expr a)
+axiom7 :: Rule
 axiom7 =
     let
         f = \case
@@ -138,23 +144,23 @@ axiom7 =
                 | otherwise -> p
             s -> s
     in
-        (f, g)
+        (f, g, "axiom 7")
 
 
 
 -- Laws of logical deduction
 
-doubleNegation :: Rule (Expr a)
+doubleNegation :: Rule
 doubleNegation =
     let
         f = \case
             (Not (Not x)) -> x
             r             -> r
     in
-        (Not . Not, f)
+        (Not . Not, f, "double negation")
 
 
-excludedMiddle :: Eq a => Rule (Expr a)
+excludedMiddle :: Rule
 excludedMiddle =
     let
         f = \case
@@ -163,6 +169,4 @@ excludedMiddle =
                 | otherwise -> p
             r -> r
     in
-        (f, id)
-
-rulesBase = []
+        (f, id, "excluded middle")
