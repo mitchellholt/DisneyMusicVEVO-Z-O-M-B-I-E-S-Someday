@@ -19,8 +19,8 @@ main :: IO ()
 main = do
     contents <- File.getFileContents
     case ParseLib.parse ParseFile.language contents of
-        Nothing -> do
-            print "sadj"
-        Just (l, _) -> if (and (verifyTheorem <$> l))
+        Just (l, "") -> if (and (verifyTheorem <$> l))
             then do putStrLn "sotrue"
             else do putStrLn ":("
+        _ -> do
+            putStrLn "sadj"
