@@ -11,19 +11,27 @@ import ParseRule
 import Proof
 import Rule
 
-
--- EXPAND =  STATEMENT -> { PROOF } PROOF <-
--- CASE = STATEMENT : Case ( RULE ) [ PROOF ] else [ PROOF ] PROOF
+-- BRACKETS = [ PROOF ]
+-- EXPAND =  STATEMENT -> PROOF <- PROOF
+-- CASE = STATEMENT : Case ( RULE ) { PROOF } else { PROOF } <- PROOF
 -- APPLY = STATEMENT : ( RULE ) <- PROOF
 -- TRUTH = STATEMENT ;
+
 proof :: Parser (Pf (Expr String))
 proof = do
     do
+        _ <- token "["
+        p <- proof
+        _ <- token "]"
+        return p
+    <|> expand
+
+expand :: Parser (Pf (Expr String))
+expand = do
+    do
         s <- statement
         _ <- token "->"
-        _ <- token "{"
         i <- proof
-        _ <- token "}"
         _ <- token "<-"
         n <- proof
         return (Expand (s, []) i n)
@@ -38,13 +46,14 @@ casep = do
         _ <- token "("
         r <- newrule 
         _ <- token ")"
-        _ <- token "["
+        _ <- token "{"
         t <- proof
-        _ <- token "]"
+        _ <- token "}"
         _ <- token "else"
-        _ <- token "["
+        _ <- token "{"
         f <- proof
-        _ <- token "]"
+        _ <- token "}"
+        _ <- token "<-"
         n <- proof
         return (Case (s, []) r (giveRules [r] t) (giveRules [r] f) n)
     <|> apply
@@ -55,11 +64,11 @@ apply = do
         s <- statement
         _ <- token ":"
         _ <- token "("
-        r <- newrule
+        r <- word
         _ <- token ")"
         _ <- token "<-"
         n <- proof
-        return (Apply (s, []) (r) n) -- needs to change
+        return (Apply (s, []) (id, id, r) n) -- needs to change
     <|> truth
 
 truth :: Parser (Pf (Expr String))
