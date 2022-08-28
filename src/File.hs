@@ -3,13 +3,6 @@ module File where
 import System.IO
 import System.Environment
 
-
-main :: IO ()
-main = do
-    contents <- getFileContents
-    print contents
-
-
 getFileContents :: IO String
 getFileContents = do
     args <- getArgs
