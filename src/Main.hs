@@ -15,23 +15,12 @@ verifyTheorem :: ParseFile.Section -> Bool
 verifyTheorem (Left (_, s, p)) = (s == top p) && verify p
 verifyTheorem _         = True
 
-
-readWholeFile :: Handle -> IO String
-readWholeFile fHandle = do
-    isEnd <- hIsEOF fHandle
-    if isEnd
-       then do return ""
-    else do
-        this <- hGetLine fHandle
-        rest <- readWholeFile fHandle
-        return (this ++ "\n" ++ rest)
-
 main :: IO ()
 main = do
-    contents <- File.gerFileContents
+    contents <- File.getFileContents
     case ParseLib.parse ParseFile.language contents of
         Nothing -> do
             print "sadj"
-        Just (l, _) -> if all (verifyTheorem <$> l)
-            then do print "sotrue"
-            else do print ":("
+        Just (l, _) -> if (and (verifyTheorem <$> l))
+            then do putStrLn "sotrue"
+            else do putStrLn ":("

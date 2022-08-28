@@ -1,0 +1,12 @@
+(thm. theorem) [A x : s(x) = s(x)]
+
+
+(A x : s(x) = s(x)) -> [
+    s(x) = s(x) : (eq) 
+    <- x = x : (eq) 
+    <- Taut;
+] 
+<- (A x : Taut) : (alltrue) 
+<- Taut;
+
+QED
