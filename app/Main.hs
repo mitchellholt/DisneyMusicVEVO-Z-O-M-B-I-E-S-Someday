@@ -1,9 +1,9 @@
 {-# LANGUAGE BlockArguments #-}
 module Main where
 
-import qualified ParseLib (parse, token)
-import ParseProof
-import Verify
+import qualified ParseFile
+import qualified ParseLib
+
 import System.IO
 import GHC.IO.Handle (hIsEOF)
 
@@ -22,6 +22,8 @@ main = do
     fHandle <- openFile "test1.jk" ReadMode
     contents <- readWholeFile fHandle
     hClose fHandle
-    case ParseLib.parse (proof) contents of
-      Just (a, rest) -> putStrLn $ (show a) ++ "\n" ++ (show $ verify a)
-      Nothing       -> putStrLn "err :("
+    case ParseLib.parse ParseFile.language contents of
+        Nothing -> do
+            print "Could not parse file"
+            return ()
+        Just (l, _) -> return () -- do proof checking here
