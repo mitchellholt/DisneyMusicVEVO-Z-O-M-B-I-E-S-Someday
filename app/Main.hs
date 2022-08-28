@@ -3,6 +3,9 @@ module Main where
 
 import qualified ParseFile
 import qualified ParseLib
+import qualified ParseProof
+
+import Verify
 
 import System.IO
 import GHC.IO.Handle (hIsEOF)
@@ -24,6 +27,14 @@ main = do
     hClose fHandle
     case ParseLib.parse ParseFile.language contents of
         Nothing -> do
-            print "Could not parse file"
-            return ()
-        Just (l, _) -> return () -- do proof checking here
+            print "sadj"
+        Just l -> do
+            print l
+    -- case ParseLib.parse ParseProof.proof contents of
+    --     Nothing -> do
+    --         print "Could not parse file"
+    --         return ()
+    --     Just (l, _) -> do
+    --         putStrLn $ contents ++ "\n"
+    --         putStrLn $ if (verify l) then "SO TRUEEEE!!!!" else "\n:("
+    --         return ()

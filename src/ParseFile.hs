@@ -10,7 +10,7 @@ import Rule
 
 
 type Section = Either Theorem Definition
-type Theorem = (String, Stmt (Expr String), Pf (Stmt (Expr String)))
+type Theorem = (String, Stmt (Expr String), Pf (Expr String))
 type Definition = (String, [Expr String], [Expr String], Stmt (Expr String))
 
 

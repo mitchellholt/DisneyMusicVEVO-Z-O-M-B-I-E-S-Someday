@@ -1,16 +1,3 @@
-THEOREM = 
-( thm. NAME ) [ STATEMENT ] PROOF QED
-
-PROOF =
-EXPAND = STATEMENT -> { PROOF } PROOF
-CASE = Case ( RULE ) [ PROOF ] else [ PROOF ] PROOF
-APPLY = STATEMENT : ( RULE ) <- PROOF
-TRUTH = -> STATEMENT ;
-
-
-(thm. duh) [A x : 0 = 0]
-A x : 0 = 0 -> {
-    0 = 0: (id) <- Taut;
-} 
-A x : Taut: (ATaut) <- Taut;
-                                QED
+Taut -> {
+    Taut;
+} <- Taut;
