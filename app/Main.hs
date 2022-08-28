@@ -18,7 +18,7 @@ readWholeFile fHandle = do
     else do
         this <- hGetLine fHandle
         rest <- readWholeFile fHandle
-        return (this ++ rest)
+        return (this ++ "\n" ++ rest)
 
 main :: IO ()
 main = do
@@ -28,8 +28,16 @@ main = do
     case ParseLib.parse ParseFile.language contents of
         Nothing -> do
             print "sadj"
-        Just l -> do
-            print l
+        Just (l, _) -> do
+            case (head l) of
+                Left (_, _, p) -> do
+                    print p
+                    putStrLn $ contents ++ "\n"
+                    putStrLn $ if (verify p) then "SO TRUEEEE!!!!" else "\nnot so true :( "
+                    return ()
+                Right b -> do
+                    print b
+
     -- case ParseLib.parse ParseProof.proof contents of
     --     Nothing -> do
     --         print "Could not parse file"

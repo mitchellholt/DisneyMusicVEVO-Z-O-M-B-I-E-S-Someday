@@ -184,5 +184,29 @@ defaultRules = [
     axiom6,
     axiom7,
     doubleNegation,
-    excludedMiddle 
-               ]
+    excludedMiddle,
+    (id,id,"id"),
+    (id,(\x ->
+        case x of
+            Eq (Succ a) (Succ b) -> Eq a b
+            y -> y
+    ),"bothsucc"),
+    (id,(\x ->
+        case x of
+            Eq a b -> Eq (Succ a) (Succ b)
+            y -> y
+    ),"succboth"),
+    (id,(\x ->
+        case x of
+            Eq a b -> if (a == b) then Taut else Eq a b
+            y -> y
+    ),"eq"),
+    (id,(\x ->
+        case x of
+            Forall _ Taut -> Taut
+            Exists _ Taut -> Taut
+            y -> y
+    ),"alltrue")
+               
+    
+    ]

@@ -38,9 +38,14 @@ split x = (\y -> x, x)
 ruleBack :: Rule -> (Stmt (Expr String) -> Stmt (Expr String))
 ruleBack (_,f,_) = f
 
+
+getRule :: [Rule] -> Rule -> Rule
+getRule (h:t) r = if ((getName h) == (getName r)) then h else getRule t r
+getRule [] r = r
+
 verifyS :: (Pf (Expr String)) -> Bool
 verifyS (Truth _) = True
-verifyS (Apply (s,_) r p) = (verifyS p) && ((top p) == ((ruleBack r) s)) 
+verifyS (Apply (s,l) r p) = (verifyS p) && ((top p) == ((ruleBack (getRule l r)) s)) 
 verifyS (Case (s,_) r t f n) = Prelude.and $ (fmap verifyS [t, f, n]) ++ (fmap (\x -> s == (top x)) [t, f, n]) ++ [(bot t) == (top n), (bot f) == (top n)]
 verifyS (Expand (s,_) p n) = let (f, ss) = (split s) in 
     ((top p) == ss) && ((f $ bot p) == (top n)) && (verifyS n) && (verifyS p)
@@ -60,9 +65,9 @@ negateRule (a,b,s) = (Statement.negate . a, b . Statement.negate, "not" ++ s)
 
 verifyR :: (Pf (Expr String)) -> Bool
 verifyR (Truth _) = True
-verifyR (Apply (_,rr) r p) = (ruleIn r rr) && (subList (grabRules p) rr)
-verifyR (Expand (_,rr) p n) = (subList (grabRules p) rr) && (subList (grabRules n) rr)
-verifyR (Case (_,rr) r t f n) = (subList (grabRules t) (r:rr)) && (subList (grabRules f) (((negateRule) r):rr)) && (subList (grabRules f) rr)
+verifyR (Apply (_,rr) r p) = (ruleIn r rr) && (subList (grabRules p) rr) && (verifyR p)
+verifyR (Expand (_,rr) p n) = (subList (grabRules p) rr) && (subList (grabRules n) rr) && (verifyR p) && (verifyR n)
+verifyR (Case (_,rr) r t f n) = (subList (grabRules t) (r:rr)) && (subList (grabRules f) (((negateRule) r):rr)) && (subList (grabRules f) rr) && (verifyR t) && (verifyR f) && (verifyR n)
 
 verify :: (Pf (Expr String)) -> Bool
 verify p = (verifyS p) && (verifyR p)
