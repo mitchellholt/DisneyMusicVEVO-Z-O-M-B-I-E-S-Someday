@@ -4,7 +4,6 @@ import Statement
 import Proof
 import Rule
 
-
 -- expand :: (Stmt a) -> (Stmt a)
 -- expand Taut = Taut
 -- expand (Or a _) = a

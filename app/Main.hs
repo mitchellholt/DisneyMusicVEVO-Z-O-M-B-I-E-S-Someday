@@ -10,6 +10,11 @@ import Verify
 import System.IO
 import GHC.IO.Handle (hIsEOF)
 
+
+verifyTheorem :: ParseFile.Theorem -> Bool
+verifyTheorem (_, s, p) = (s == (top p)) && verify p
+
+
 readWholeFile :: Handle -> IO String
 readWholeFile fHandle = do
     isEnd <- hIsEOF fHandle
