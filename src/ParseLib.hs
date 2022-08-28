@@ -57,6 +57,19 @@ parseWhile p = P $ \case
         | otherwise -> Just ("", c:cs)
 
 
+list :: Parser [String]
+list = do
+    do
+        x <- word
+        if x == "" then return []
+        else do
+            do
+                _ <- token ","
+                xs <- list
+                return (x:xs)
+            <|> return [x]
+    <|> return []
+
 
 whitespace :: Parser ()
 whitespace = do

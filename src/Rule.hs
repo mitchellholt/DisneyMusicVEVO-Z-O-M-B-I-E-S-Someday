@@ -168,3 +168,19 @@ excludedMiddle =
             r -> r
     in
         (f, id, "excluded middle")
+
+
+defaultRules :: [Rule]
+defaultRules = [
+    associativity,
+    commute,
+    axiom1,
+    axiom2,
+    axiom3,
+    axiom4,
+    axiom5,
+    axiom6,
+    axiom7,
+    doubleNegation,
+    excludedMiddle 
+               ]
